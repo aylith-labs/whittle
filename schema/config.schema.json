@@ -1,0 +1,54 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "whittle config.json",
+	"type": "object",
+	"required": ["version"],
+	"properties": {
+		"$schema": { "type": "string" },
+		"version": { "const": 1 },
+		"harnesses": {
+			"type": "object",
+			"propertyNames": { "enum": ["claude-code", "codex"] },
+			"additionalProperties": {
+				"type": "object",
+				"required": ["enabled"],
+				"properties": { "enabled": { "type": "boolean" } }
+			}
+		},
+		"repos": {
+			"type": "object",
+			"required": ["default"],
+			"properties": {
+				"default": {
+					"enum": ["off", "on"],
+					"description": "Whether a repository that was never passed to `whittle enable` counts as enabled."
+				}
+			}
+		},
+		"levers": {
+			"type": "object",
+			"description": "Per-lever settings keyed by lever id; each lever documents its own options.",
+			"additionalProperties": {
+				"type": "object",
+				"properties": { "enabled": { "type": "boolean" } }
+			},
+			"properties": {
+				"shell-output": {
+					"type": "object",
+					"properties": {
+						"enabled": { "type": "boolean" },
+						"allow": {
+							"type": "array",
+							"items": { "type": "string" },
+							"description": "Commands that may be prefixed with `rtk`; a command must equal an entry or be an entry followed by plain arguments."
+						}
+					}
+				},
+				"prefix-audit": {
+					"type": "object",
+					"properties": { "enabled": { "type": "boolean" } }
+				}
+			}
+		}
+	}
+}

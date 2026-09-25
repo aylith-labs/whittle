@@ -1,0 +1,12 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		// Runtime code runs under plain Node, so Bun globals must not typecheck inside src/.
+		"types": ["node"],
+		"noEmit": false,
+		"declaration": true,
+		"outDir": "dist",
+		"rootDir": "src"
+	},
+	"include": ["src"]
+}
