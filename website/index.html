@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>whittle — Token-saving levers for coding agents</title>
+		<meta
+			name="description"
+			content="whittle turns token-saving techniques for coding agents into levers you switch on per repository. It wires Claude Code and Codex from your home directory, writes nothing into your repos, and never quotes a number it did not measure."
+		/>
+		<link rel="canonical" href="https://whittle.aylith.com/" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="whittle" />
+		<meta property="og:title" content="whittle — Token-saving levers for coding agents" />
+		<meta
+			property="og:description"
+			content="Token-saving techniques for coding agents, each one a switch: enabled per repository, measured on your own setup, and never written into a repo."
+		/>
+		<meta property="og:url" content="https://whittle.aylith.com/" />
+		<meta property="og:image" content="https://whittle.aylith.com/og.png" />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<script>
+			try {
+				const saved = localStorage.getItem("whittle-theme");
+				if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved;
+			} catch {}
+		</script>
+		<link rel="stylesheet" href="/styles.css" />
+	</head>
+	<body>
+		<a class="skip" href="#main">Skip to content</a>
+
+		<header class="site-header wrap">
+			<a class="brand" href="#top" aria-label="whittle, back to top">
+				<svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+					<path class="blade" d="M5 26 22 9l3 3L8 29z" />
+					<path class="handle" d="m22 9 3-3a2.1 2.1 0 0 1 3 3l-3 3" />
+					<path class="shaving" d="M6 13c3-4 7-5 10-3M4 8c2-3 5-4 8-3" />
+				</svg>
+				<span>whittle</span>
+			</a>
+			<nav aria-label="Main navigation">
+				<a href="#levers">Levers</a>
+				<a href="#rules">Rules</a>
+				<a href="#install">Install</a>
+				<a href="https://github.com/aylith-labs/whittle">GitHub <span aria-hidden="true">↗</span></a>
+			</nav>
+			<label class="theme"
+				><span class="visually-hidden">Color theme</span>
+				<select id="theme" aria-label="Color theme">
+					<option value="system">System</option>
+					<option value="light">Light</option>
+					<option value="dark">Dark</option>
+				</select>
+			</label>
+		</header>
+
+		<main id="main">
+			<section class="hero wrap" id="top" aria-labelledby="hero-title">
+				<div class="hero-copy">
+					<p class="eyebrow">
+						<span class="dot" aria-hidden="true"></span>Developer tool · v0.1 · MIT
+					</p>
+					<h1 id="hero-title">Whittle down what your agent <em>reads.</em></h1>
+					<p class="lead">
+						whittle collects the techniques that cut a coding agent’s token bill and turns each one into a
+						lever you switch on per repository. It wires itself into Claude Code and Codex from your home
+						directory and writes nothing into the repositories it serves.
+					</p>
+					<div class="actions">
+						<a class="button" href="#install">Install whittle</a>
+						<a class="link" href="https://github.com/aylith-labs/whittle"
+							>Read the source <span aria-hidden="true">↗</span></a
+						>
+					</div>
+					<ul class="facts" aria-label="At a glance">
+						<li>Claude Code · Codex</li>
+						<li>No telemetry</li>
+						<li>Node 22.12+</li>
+					</ul>
+				</div>
+
+				<figure class="shot" aria-labelledby="shot-caption">
+					<div class="term">
+						<div class="term-bar" aria-hidden="true"><i></i><i></i><i></i><span>~/code/shop</span></div>
+						<pre class="term-body"><code><span class="p">$</span> whittle install
+claude-code: written ~/.claude/settings.json (5 appended)
+codex: not installed (~/.codex does not exist); skipped
+<span class="dim">nothing is active yet: run `whittle enable` inside a repository to opt it in</span>
+
+<span class="p">$</span> whittle enable
+enabled ~/code/shop (repo a5106c195910)
+  shell-output: <span class="off">off</span>
+  prefix-audit: <span class="on">on</span>
+
+<span class="p">$</span> whittle prefix-audit
+<span class="dim">TOKENS  CHARS  KIND       SOURCE</span>
+~644    2506   claude-md  ~/code/shop/CLAUDE.md
+total ≈ 644 tokens across 1 components
+<span class="dim">not measured: Claude Code's own system prompt and built-in
+tool schemas; MCP server instructions and tool schemas; …</span>
+
+<span class="p">$</span> git status --short
+<span class="p">$</span> <span class="caret"></span></code></pre>
+					</div>
+					<figcaption id="shot-caption">
+						Real output from whittle 0.1.0 in a fresh home directory. Paths are shortened to <code>~</code> and
+						a few lines are trimmed. The empty <code>git status</code> is the point.
+					</figcaption>
+				</figure>
+			</section>
+
+			<section class="layers band" aria-labelledby="layers-title">
+				<div class="wrap">
+					<div class="section-head">
+						<p class="eyebrow">Where the tokens go</p>
+						<h2 id="layers-title">An agent pays in six layers.</h2>
+						<p>
+							Every turn re-sends a fixed prefix, tool schemas and the history so far, on top of tool output,
+							file reads and the model’s own reply. Each lever targets one layer, so you can tell what changed
+							when you switch it.
+						</p>
+					</div>
+					<ol class="stack">
+						<li class="lit"><span class="tag">L1</span><b>Fixed prefix</b><small>memory files, rules, skill descriptions</small></li>
+						<li class="lit"><span class="tag">L2</span><b>Tool schemas</b><small>the tools offered on every turn</small></li>
+						<li class="lit"><span class="tag">L3</span><b>Tool output</b><small>what a shell command prints back</small></li>
+						<li class="soon"><span class="tag">L4</span><b>Code retrieval</b><small>whole-file reads to find one symbol</small></li>
+						<li><span class="tag">L5</span><b>Agent output</b><small>the model’s own tokens</small></li>
+						<li><span class="tag">L6</span><b>History</b><small>everything above, carried forward</small></li>
+					</ol>
+					<p class="legend">
+						<span class="key lit"></span>a shipped lever covers it <span class="key soon"></span>a lever is planned
+					</p>
+				</div>
+			</section>
+
+			<section class="levers wrap" id="levers" aria-labelledby="levers-title">
+				<div class="section-head">
+					<p class="eyebrow">Levers</p>
+					<h2 id="levers-title">Off until you say so.</h2>
+					<p>
+						<code>whittle install</code> only wires the hook. Nothing runs in a repository until you
+						<code>enable</code> it there, and each lever can be switched on its own.
+					</p>
+				</div>
+				<div class="lever-grid">
+					<article>
+						<div class="lever-head"><code>shell-output</code><span class="state">opt-in</span></div>
+						<p class="layer">L3 · tool output · hook</p>
+						<p>
+							Rewrites allowlisted Bash commands through <a href="https://github.com/rtk-ai/rtk">rtk</a>, which
+							filters their output before the agent reads it. Enforced in Claude Code; Codex gets the hook but
+							not the rewrite.
+						</p>
+						<p class="note">
+							Needs the <code>rtk</code> binary, which you install yourself. A published paired run measured
+							<b>+7.6% cost</b> with it, so whittle shows that figure, labelled as someone else’s.
+						</p>
+					</article>
+					<article>
+						<div class="lever-head"><code>prefix-audit</code><span class="state on">on when enabled</span></div>
+						<p class="layer">L1 + L2 · fixed prefix · report</p>
+						<p>
+							Ranks what rides along on every turn, memory files, rules and skill descriptions, in approximate
+							tokens, and lists what it could not measure. It reports only and injects nothing.
+						</p>
+						<p class="note">
+							Counts use the o200k tokenizer as an estimate; Claude’s own tokenizer is not public.
+						</p>
+					</article>
+					<article class="later">
+						<div class="lever-head"><code>retrieval</code><span class="state">not yet shipped</span></div>
+						<p class="layer">L4 · code retrieval</p>
+						<p>
+							Will answer “where is this, who calls it” from a code graph instead of whole-file reads, through
+							<a href="https://github.com/aylith-labs/graft">graft</a>.
+						</p>
+					</article>
+				</div>
+			</section>
+
+			<section class="rules band" id="rules" aria-labelledby="rules-title">
+				<div class="wrap">
+					<div class="section-head">
+						<p class="eyebrow">Three rules</p>
+						<h2 id="rules-title">Built to be trusted with your setup.</h2>
+					</div>
+					<div class="rule-grid">
+						<article>
+							<span class="num">01</span>
+							<h3>Nothing is written into a repository</h3>
+							<p>
+								Hooks go into your user-level harness config; state and caches live under the XDG directories.
+								<code>whittle footprint</code> lists every path it has ever written, and the test suite fails if
+								a stray file appears in a repo.
+							</p>
+						</article>
+						<article>
+							<span class="num">02</span>
+							<h3>Nothing leaves the machine</h3>
+							<p>
+								No telemetry, no hosted service, no network calls at runtime and no install-time scripts. The
+								hook fails open and always exits 0, with a time cap per lever.
+							</p>
+						</article>
+						<article>
+							<span class="num">03</span>
+							<h3>No number taken on trust</h3>
+							<p>
+								A lever shows what was measured on your machine or says “unmeasured”. Figures from elsewhere are
+								printed as external evidence with their source.
+							</p>
+						</article>
+					</div>
+				</div>
+			</section>
+
+			<section class="commands wrap" aria-labelledby="commands-title">
+				<div class="section-head">
+					<p class="eyebrow">Commands</p>
+					<h2 id="commands-title">Everything is reversible.</h2>
+				</div>
+				<dl class="cmd-list">
+					<div><dt><code>install</code> / <code>uninstall</code></dt><dd>Wire or unwire the hook. Uninstall is a dry run unless <code>-y</code>, and reports whether each config came back byte-identical to its backup.</dd></div>
+					<div><dt><code>enable</code> / <code>disable</code></dt><dd>Opt a repository in or out, or switch a single lever for it. Worktrees of one checkout share the setting.</dd></div>
+					<div><dt><code>levers</code></dt><dd>Every lever with its layer, enforcement, dependency and measured effect.</dd></div>
+					<div><dt><code>status</code></dt><dd>Harness wiring, enabled repositories and footprint, also as <code>--json</code>.</dd></div>
+					<div><dt><code>doctor</code></dt><dd>Checks wiring, executables and the environment; exits 1 on a failure.</dd></div>
+					<div><dt><code>footprint</code></dt><dd>Every path whittle has written outside repositories.</dd></div>
+					<div><dt><code>prefix-audit</code></dt><dd>The per-turn prefix for a directory, ranked by approximate tokens.</dd></div>
+				</dl>
+			</section>
+
+			<section class="install band" id="install" aria-labelledby="install-title">
+				<div class="wrap">
+					<div class="section-head">
+						<p class="eyebrow">Install</p>
+						<h2 id="install-title">Two commands to wire it, one to opt in.</h2>
+						<p>
+							whittle is not on the npm registry yet. Install the packed release from this site, or build it from
+							source. Either way the hook runs under Node, which starts fastest.
+						</p>
+					</div>
+					<div class="install-grid">
+						<div class="terminal">
+							<div class="terminal-bar">
+								<span>From this site</span>
+								<button type="button" class="copy" data-target="cmd-release" aria-describedby="copy-status">Copy</button>
+							</div>
+							<pre><code id="cmd-release">npm install -g https://whittle.aylith.com/downloads/aylith-whittle-0.1.0.tgz
+whittle install    <span class="comment"># wire each detected harness</span>
+whittle enable     <span class="comment"># opt the current repository in</span></code></pre>
+						</div>
+						<div class="terminal">
+							<div class="terminal-bar">
+								<span>From source (Bun to build)</span>
+								<button type="button" class="copy" data-target="cmd-source" aria-describedby="copy-status">Copy</button>
+							</div>
+							<pre><code id="cmd-source">git clone https://github.com/aylith-labs/whittle.git
+cd whittle &amp;&amp; bun install &amp;&amp; bun run build
+npm install -g .
+whittle install &amp;&amp; whittle enable</code></pre>
+						</div>
+					</div>
+					<p id="copy-status" class="copy-status" role="status" aria-live="polite">
+						Checksums: <a href="/downloads/SHA256SUMS">SHA256SUMS</a>. Undo everything with
+						<code>whittle uninstall -y</code>.
+					</p>
+					<ul class="needs">
+						<li><h3>Node.js 22.12 or newer</h3><p>The shipped binary is plain JavaScript with two dependencies.</p></li>
+						<li><h3>Claude Code or Codex</h3><p><code>install</code> wires whichever it finds in your home directory and skips the rest.</p></li>
+						<li><h3>rtk, only for shell-output</h3><p>whittle never installs it. <code>whittle doctor</code> tells you if it is missing.</p></li>
+					</ul>
+					<p class="follow">
+						<a class="link" href="https://aylith.com/projects/whittle"
+							>Follow progress and the changelog <span aria-hidden="true">↗</span></a
+						>
+					</p>
+				</div>
+			</section>
+		</main>
+
+		<footer class="site-footer wrap">
+			<span>whittle · MIT</span>
+			<span class="footer-links">
+				<a href="https://github.com/aylith-labs/whittle">GitHub <span aria-hidden="true">↗</span></a>
+				<a href="https://aylith.com/">An Aylith tool <span aria-hidden="true">↗</span></a>
+			</span>
+		</footer>
+
+		<script>
+			{
+				const select = document.getElementById("theme");
+				select.value = document.documentElement.dataset.theme || "system";
+				select.addEventListener("change", () => {
+					const value = select.value;
+					if (value === "system") delete document.documentElement.dataset.theme;
+					else document.documentElement.dataset.theme = value;
+					try {
+						if (value === "system") localStorage.removeItem("whittle-theme");
+						else localStorage.setItem("whittle-theme", value);
+					} catch {}
+				});
+				const status = document.getElementById("copy-status");
+				for (const button of document.querySelectorAll(".copy")) {
+					button.addEventListener("click", async () => {
+						const text = document.getElementById(button.dataset.target).textContent;
+						try {
+							await navigator.clipboard.writeText(text);
+							status.textContent = "Copied. Paste into your terminal.";
+						} catch {
+							status.textContent = "Copy is unavailable here. Select the commands to copy them.";
+						}
+					});
+				}
+			}
+		</script>
+	</body>
+</html>

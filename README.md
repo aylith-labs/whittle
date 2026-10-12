@@ -17,11 +17,19 @@ Three rules shape it:
 
 ## Install
 
+whittle is not on the npm registry yet. Install the packed release from
+[whittle.aylith.com](https://whittle.aylith.com), or build it from source:
+
 ```sh
-npm install -g @aylith/whittle   # run the hook under node: it is the fastest start
+npm install -g https://whittle.aylith.com/downloads/aylith-whittle-0.1.0.tgz
+# or: git clone https://github.com/aylith-labs/whittle && cd whittle
+#     bun install && bun run build && npm install -g .
+
 whittle install                  # wire the hook into each detected harness
 whittle enable                   # opt the current repository in
 ```
+
+Run the hook under node: it is the fastest start.
 
 `install` only wires the harness — every lever stays off until a repository opts in. `whittle
 uninstall` reverses it and reports whether each config file came back byte-identical to its backup.
@@ -45,6 +53,12 @@ uninstall` reverses it and reports whether each config file came back byte-ident
 | `whittle doctor` | checks wiring, executables and the environment; exits 1 on a failure |
 | `whittle footprint` | every path written outside repositories |
 | `whittle prefix-audit [path]` | the per-turn prefix, ranked |
+
+## Homepage
+
+`website/` is the static homepage, plain HTML and CSS with no build step.
+`.github/workflows/homepage.yml` checks and packs the CLI, then publishes the page (at `/` and
+`/home/`) and the tarball under `/downloads/` to GitHub Pages at https://whittle.aylith.com.
 
 ## Licence
 

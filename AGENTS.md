@@ -37,6 +37,9 @@ binary), biome, `typescript` at latest.
   dependency and how it is measured.
 - `src/config.ts`, `src/repo.ts`, `src/ledger.ts` — config and repository registry, repo identity
   (worktrees of one checkout share an id), and the record of every path whittle has written.
+- `website/` — the static homepage (plain HTML/CSS). `.github/workflows/homepage.yml` publishes it
+  with the packed CLI under `/downloads/` to GitHub Pages at whittle.aylith.com; bump the tarball
+  name in `website/index.html` when the version changes (the workflow fails otherwise).
 
 ## Conventions
 
