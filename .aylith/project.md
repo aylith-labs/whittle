@@ -7,6 +7,7 @@ description: >-
   repository, measured against your own setup, and wired from user-level config so it writes
   nothing into the repositories it serves.
 category: developer-tools
+websiteUrl: https://whittle.aylith.com/home/
 status: building
 icon: scissors
 ---
